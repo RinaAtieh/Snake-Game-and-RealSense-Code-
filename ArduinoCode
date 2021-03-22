@@ -1,0 +1,464 @@
+#include <FastLED.h>
+#include <SoftwareSerial.h>
+
+
+//matrix settings
+#define NUM_LEDS 256
+#define DATA_PIN 3
+#define BRIGHTNESS 8
+
+ int arr_a[] = {49,78,81,110,113,142,145,174,177,173,178,76,83,108,115,140,147,172,179,171,180,53,74,85,106 ,117,138,149,170,181,55,87,104,119,136,151,168,183,57,70,89,102,121,134,153,166,185,58,59,68,91,100
+  ,123,132,155,164,187,61,66,93,98,125,130,157,162,189,221};
+ int arr_aa[] = {48,79,80,111,112,143,144,175,176,174,177,173,178,52,75,84,107,116,139,148,171,180
+  ,53,181,54,73,86,105,118,137,150,169,182,56,71,88,103,120,184,57,121,134,153,166,185,59
+  ,68,91,100,123,132,155,164,187,60,92,188,61,66,93,189,63,64,95,96,127,128
+  ,159,160,191,223};
+
+int snake[256]; // array of snake elements
+int snakeSize = 2;  // real snake size 
+int snakeSpeed = 500;
+int eatenfoodNum=0;
+int row;        // row number
+int col;        // column number
+
+int lastDirection = 135; // start direction
+int i, newDirection, OlddX = 1, OlddY, f;
+int previ='R';
+int red, green, blue, fred, fgreen, fblue; //colors
+int dX, dY; //directions
+char state = 'E';
+int winner=0;
+
+int cheatEnabled = 0;
+int cheatNumber = 0;
+
+CRGB leds[NUM_LEDS];
+SoftwareSerial mySerial(10, 11); 
+
+void setup() 
+{
+  
+  Serial.begin(9600);
+  mySerial.begin(9600);
+ // Serial.println("set up");
+  red = 255;                //Snake color RED value
+  green = 0;                //Snake color Green value
+  blue = 0;                 //Snake color Blue value
+  fred = 0;                 //Food color RED value
+  fgreen = 0;               //Food color Green value
+  fblue = 255;              //Food color Blue value
+      
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.setBrightness(BRIGHTNESS);
+ // Serial.println("snake0");
+  for( i=0; i<=255; i++ )
+  {
+    snake[i] = 0;
+  }
+ // Serial.println("snake1");
+
+  for( i=0; i<=snakeSize; i++ )
+  {
+    snake[i] = lastDirection+i;
+  }
+    
+  f = random(0, 255);
+  FastLED.show();
+}
+
+
+void resetTheGame(){
+ // Serial.println("reset Game");
+   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.setBrightness(BRIGHTNESS);
+
+  cheatEnabled = 0;
+  cheatNumber = 0;
+  lastDirection = 135;
+  snakeSize = 2;
+  OlddX = 1;
+  snakeSpeed = 500;
+  eatenfoodNum=0;
+ // Serial.println("reset- snake0");
+  for( i=0; i<=255; i++ )
+  {
+    snake[i] = 0;
+  }
+//Serial.println("reset - snake1");
+  for( i=0; i<=snakeSize; i++ )
+  {
+    snake[i] = lastDirection+i;
+  }
+    
+  f = random(0, 255);
+  FastLED.show();
+ // Serial.println("reset game finish ####");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void loop()
+{
+  while(state == 'E')
+    {
+      FastLED.clear();
+      FastLED.show();
+    //  Serial.println("loop state E");
+      mySerial.println('E');
+      if(mySerial.available()) 
+      {
+      char i = (mySerial.read());
+      Serial.println(i);
+             if (i == 'A'){
+          //move to left
+           for(i=117; i<124;i++){
+              leds[i].setRGB(30,144,255);
+           }
+           leds[137].setRGB(30,144,255);
+           leds[105].setRGB(30,144,255);
+            leds[87].setRGB(30,144,255);
+           leds[151].setRGB(30,144,255);
+
+
+           FastLED.show();
+           delay(20);
+           
+        }
+
+         if (i == 'B'){
+          //move to right
+           for(i=117; i<124;i++){
+              leds[i].setRGB(30,144,255);
+           }
+           leds[133].setRGB(30,144,255);
+           leds[101].setRGB(30,144,255);
+            leds[89].setRGB(30,144,255);
+           leds[153].setRGB(30,144,255);
+
+
+           FastLED.show();
+           delay(20);
+           
+        }
+
+
+         if (i == 'W'){
+          //move to up
+            leds[87].setRGB(30,144,255);
+           leds[104].setRGB(30,144,255);
+           leds[119].setRGB(30,144,255);
+           leds[136].setRGB(30,144,255);
+           leds[151].setRGB(30,144,255);
+           leds[168].setRGB(30,144,255);
+           leds[183].setRGB(30,144,255);
+           leds[200].setRGB(30,144,255);
+
+           leds[103].setRGB(30,144,255);
+           leds[121].setRGB(30,144,255);
+           leds[105].setRGB(30,144,255);
+           leds[117].setRGB(30,144,255);
+
+
+
+
+           FastLED.show();
+           delay(20);
+           
+        }
+
+         if (i == 'N'){
+          //move to down
+           leds[72].setRGB(30,144,255);
+           leds[87].setRGB(30,144,255);
+           leds[104].setRGB(30,144,255);
+           leds[119].setRGB(30,144,255);
+           leds[136].setRGB(30,144,255);
+           leds[151].setRGB(30,144,255);
+           leds[168].setRGB(30,144,255);
+           leds[183].setRGB(30,144,255);
+
+           leds[167].setRGB(30,144,255);
+           leds[153].setRGB(30,144,255);
+           leds[169].setRGB(30,144,255);
+           leds[149].setRGB(30,144,255);
+
+
+
+
+           FastLED.show();
+          //  FastLED.clea();
+           delay(20);
+           
+        }
+
+        if(i == 'S')
+          {
+
+          //  Serial.println("loop state s *******");
+            state = 'S';
+            resetTheGame();
+            
+          }
+      }
+    }
+
+
+  if (mySerial.available()) 
+  {
+    char i = (mySerial.read());
+    Serial.println(i);
+
+   if(i == 'U' && previ != 'D' )
+    {
+     // Serial.println("U received");
+      dY = 1;
+      dX = 0;
+      previ='U';
+    }
+   else if(i == 'D' && previ !='U')
+    {
+      //Serial.println("D received");
+      dY = -1;
+      dX = 0;
+      previ='D';
+    }
+   else if(i == 'L' && previ != 'R')
+    {
+     // Serial.println("L received");
+      dX = -1;
+      dY = 0;
+      previ='L';
+    }
+   else if(i == 'R' && previ != 'L')
+    {
+     // Serial.println("R received");
+      dX = 1;
+      dY = 0;
+      previ='R';
+    }
+    else if(i == 'C')
+    {
+    //  Serial.println("C received");
+      cheatEnabled = 1;
+    }
+   else
+    {
+     // Serial.println("Wrong command");
+      dY = 0;
+      dX = 0;
+    }
+  }
+  else
+    {
+      dY = 0;
+      dX = 0; 
+    }
+  mySerial.flush();
+
+  if(cheatEnabled && snakeSize > 4 && cheatNumber < 3)
+  {
+      cheatEnabled = 0;
+      cheatNumber++;
+      int old_size = snakeSize;
+
+      board_flicker();  
+      board_flicker();
+
+
+      snakeSize = snakeSize/2 <= 2 ? 2 : snakeSize/2;
+      for( i=snakeSize +1 ; i<= old_size; i++ ){
+        snake[i]=0;
+      }
+      print_snake();
+      showFood();
+      board_flicker();
+
+  }
+  else
+  {
+    cheatEnabled = 0;
+    newDirection = Snakedirection(lastDirection);
+    lastDirection = snakeMove(newDirection);
+    food(newDirection);
+    delay(snakeSpeed);
+  }
+}
+
+
+void board_flicker()
+{
+  delay(snakeSpeed);
+  FastLED.clear();
+  FastLED.show();
+  delay(snakeSpeed);
+  print_snake();
+  showFood();
+  
+}
+
+
+int Snakedirection(int last)
+{
+  
+  if(dX == 0 && dY == 0 && OlddX != dX)
+  {
+    dX = OlddX;
+  }
+  if(dY == 0 && dX == 0 && OlddY != dY)
+  {
+    dY = OlddY;
+  }
+  int newDirection = last;
+  if( dX != 0 )
+  { // moving in X direction
+    if ( row&1 )
+    {
+        if( col == 0 && dX == 1){ newDirection = last -15; } 
+        else if( col == 15 && dX == -1){ newDirection = last +15; }
+        else newDirection = last + dX; 
+    } 
+    else 
+    {
+        if( col == 0 && dX == 1){ newDirection = last +15; }
+        else if( col == 15 && dX == -1 ){ newDirection = last -15; }
+        else newDirection = last - dX; 
+    }
+  } 
+  if( dY < 0)
+  { // moving in Y DOWN direction
+    if(row == 15 && dY == -1)
+    {
+      newDirection = col;
+    }
+    else if ( row&1 )
+    {
+      newDirection = last + (col*2)+1;
+    }
+    else
+    {
+      newDirection = last + (16-col-1)+(16-col); 
+    }
+  }
+  if( dY > 0)   // moving in Y UP direction
+  { 
+    if( row == 0 && dY == 1)
+    {
+      newDirection = 255 - col;
+    }
+    else if ( row&1 )
+    {
+      newDirection = last - (last - 16*row) - (16 - col);
+    } 
+    else 
+    {
+      newDirection = last - (col*2)-1;
+    }
+  }
+  OlddX = dX;
+  OlddY = dY;
+  return newDirection;
+}
+
+void print_snake()
+{
+  FastLED.clear();
+
+  for( i=0; i<=255; i++ )
+  {
+    if( snake[i] )
+    {
+      if( i == 0 )
+      {
+        leds[snake[i]].setRGB(186,85,211); // set head snake to be diffrent color 
+      }
+      else
+      {
+        leds[snake[i]].setRGB(red, green, blue);
+      }
+    }
+  }
+  FastLED.show();
+}
+int snakeMove(int snakeDirection)
+{
+
+  for( i=0; i<=255; i++ )
+  {
+    if( snake[i] == snakeDirection )
+    {
+      death();
+    }
+  }
+  
+  for(i=snakeSize; i>=1; i--)
+  {
+    snake[i] = snake[i-1];
+  }
+  snake[0] = snakeDirection;
+  print_snake();
+  row = (int)(snakeDirection/16);  // row number 
+  if ( row&1 )
+  {
+    col = (row+1) * 16 - snakeDirection - 1;
+  } 
+  else 
+  {
+    col = snakeDirection - row * 16;
+  }
+  return snakeDirection;
+}
+
+void showFood()
+{
+  leds[f].setRGB(fred, fgreen, fblue);
+  FastLED.show();
+}
+void win_game_print(){
+  FastLED.clear();
+  
+  int i=0;
+  
+  for(i=0; i<(sizeof(arr_a) / sizeof(arr_a[0]));i++){
+     leds[arr_a[i]].setRGB(30,144,255);
+  }
+
+  FastLED.show();
+  
+  delay(4000);
+}
+
+void food( int eaten )
+{
+  if( eaten == f )
+  {
+    snakeSize++;
+    eatenfoodNum++;
+    f = random(0, 255);
+    snakeSpeed = snakeSpeed / 1.1;
+  }
+  else
+  {
+    showFood(); 
+  }
+   if(eatenfoodNum == 6){
+    state='E';
+    FastLED.clear();
+    FastLED.show();
+    win_game_print();
+  }
+  
+}
+
+void death()
+{
+    snakeSize = 20;
+    snakeSpeed = 500;
+    red = 255;
+    green = 0;
+    blue = 0;
+    state = 'E';  
+   lose_game_print();
+    
+}
